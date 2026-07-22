@@ -27,6 +27,44 @@ BEGIN
     RAISE NOTICE '============================================================';
     RAISE NOTICE 'Started : %', v_job_start;
 
+    RAISE NOTICE '';
+    RAISE NOTICE '---------------- PREPARING ENVIRONMENT ----------------';
+
+    BEGIN
+
+        v_table_start := clock_timestamp();
+
+        RAISE NOTICE '';
+        RAISE NOTICE 'Truncating Bronze tables...';
+
+        TRUNCATE TABLE
+            bronze.crm_cust_info,
+            bronze.crm_prd_info,
+            bronze.crm_sales_details,
+            bronze.erp_cust_az12,
+            bronze.erp_loc_a101,
+            bronze.erp_px_cat_g1v2;
+
+        v_table_end := clock_timestamp();
+
+        RAISE NOTICE '✓ SUCCESS';
+        RAISE NOTICE 'All Bronze tables truncated.';
+        RAISE NOTICE 'Duration : %', v_table_end - v_table_start;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+
+            v_table_end := clock_timestamp();
+
+            RAISE NOTICE '';
+            RAISE NOTICE '✗ FAILED';
+            RAISE NOTICE 'Failed to truncate Bronze tables.';
+            RAISE NOTICE 'Error    : %', SQLERRM;
+            RAISE NOTICE 'Duration : %', v_table_end - v_table_start;
+
+            RAISE;
+
+    END;
 
     ------------------------------------------------------------
     -- CRM TABLES
@@ -46,8 +84,6 @@ BEGIN
 
         RAISE NOTICE '';
         RAISE NOTICE 'Loading bronze.crm_cust_info...';
-
-        TRUNCATE TABLE bronze.crm_cust_info;
 
         COPY bronze.crm_cust_info
         FROM 'C:\Portfolio\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
@@ -90,8 +126,6 @@ BEGIN
         RAISE NOTICE '';
         RAISE NOTICE 'Loading bronze.crm_prd_info...';
 
-        TRUNCATE TABLE bronze.crm_prd_info;
-
         COPY bronze.crm_prd_info
         FROM 'C:\Portfolio\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
         DELIMITER ','
@@ -132,8 +166,6 @@ BEGIN
 
         RAISE NOTICE '';
         RAISE NOTICE 'Loading bronze.crm_sales_details...';
-
-        TRUNCATE TABLE bronze.crm_sales_details;
 
         COPY bronze.crm_sales_details
         FROM 'C:\Portfolio\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
@@ -185,8 +217,6 @@ BEGIN
         RAISE NOTICE '';
         RAISE NOTICE 'Loading bronze.erp_cust_az12...';
 
-        TRUNCATE TABLE bronze.erp_cust_az12;
-
         COPY bronze.erp_cust_az12
         FROM 'C:\Portfolio\sql-data-warehouse-project\datasets\source_erp\cust_az12.csv'
         DELIMITER ','
@@ -228,8 +258,6 @@ BEGIN
         RAISE NOTICE '';
         RAISE NOTICE 'Loading bronze.erp_loc_a101...';
 
-        TRUNCATE TABLE bronze.erp_loc_a101;
-
         COPY bronze.erp_loc_a101
         FROM 'C:\Portfolio\sql-data-warehouse-project\datasets\source_erp\loc_a101.csv'
         DELIMITER ','
@@ -270,8 +298,6 @@ BEGIN
 
         RAISE NOTICE '';
         RAISE NOTICE 'Loading bronze.erp_px_cat_g1v2...';
-
-        TRUNCATE TABLE bronze.erp_px_cat_g1v2;
 
         COPY bronze.erp_px_cat_g1v2
         FROM 'C:\Portfolio\sql-data-warehouse-project\datasets\source_erp\px_cat_g1v2.csv'
